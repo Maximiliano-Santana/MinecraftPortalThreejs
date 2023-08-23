@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #3c3c3c;
+  overflow: hidden; 
+}
+
+.experience{ 
+  position: fixed;
+  top: 0;
+  left: 0;
+  outline:none;
+}
