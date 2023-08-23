@@ -4,6 +4,9 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
+import portalVS from '/resources/shaders/portalShader/vertex.glsl'
+import portalFS from '/resources/shaders/portalShader/fragment.glsl'
+
 import GUI from 'lil-gui';
 
 console.time('Threejs')
@@ -39,9 +42,17 @@ const loadingManager = new THREE.LoadingManager();
 const textureLoader = new THREE.TextureLoader();
 const gltfLoader = new GLTFLoader(loadingManager);
 
-gltfLoader.load('resources/models/obsidianBlock/MinecraftObsidianBackedglb.glb', (gltf)=>{
-  console.log(gltf.scene)
-  scene.add(gltf.scene.children[0]);
+const obsidianCubeTexture = textureLoader.load('resources/textures/obsidianBlockBackedTexture/ObsidianBlockBakedTexture.jpg');
+
+gltfLoader.load('resources/models/Block/Block.glb', (gltf)=>{
+  
+  const obsidianCube = gltf.scene.children[0];
+  //console.log(obsidianCube)
+  const obsidianMaterial = new THREE.MeshBasicMaterial({
+    map:obsidianCubeTexture,
+  })
+  //obsidianCube.material = obsidianMaterial;
+  //scene.add(obsidianCube);
 })
 
 
@@ -69,7 +80,8 @@ const ambientLight = new THREE.AmbientLight('#ffffff', 10);
 scene.add(ambientLight)
 
 //Objects
-//scene.add(new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial()))
+
+
 
 
 //Scene Configuration
