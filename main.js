@@ -81,9 +81,22 @@ scene.add(ambientLight)
 
 //Objects
 
+const portalMaterial = new THREE.ShaderMaterial({
+  transparent: true,
+  side: THREE.DoubleSide,
+  unifroms: {
+
+  },
+  vertexShader: portalVS,
+  fragmentShader: portalFS,
+})
 
 
+const portalGeometry = new THREE.PlaneGeometry(1, 1, 100, 100);
 
+const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
+
+scene.add(portalMesh);
 //Scene Configuration
 
 camera.position.set(0, 0, 5)
