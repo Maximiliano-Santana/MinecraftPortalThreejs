@@ -36,9 +36,13 @@ window.addEventListener('resize', ()=>{
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
-//Textures
+//Loaders
 
 const loadingManager = new THREE.LoadingManager();
+loadingManager.onLoad = ()=>{
+  initProject();
+}
+
 const textureLoader = new THREE.TextureLoader();
 const gltfLoader = new GLTFLoader(loadingManager);
 
@@ -55,65 +59,77 @@ gltfLoader.load('resources/models/Block/Block.glb', (gltf)=>{
   //scene.add(obsidianCube);
 })
 
+const portalTexture = textureLoader.load('/resources/textures/netherPortalTexture/nether_portal.png');
 
-//Scene 
-const scene = new THREE.Scene();
+function initProject(){
+  //Scene 
+  const scene = new THREE.Scene();
+  
+  //Camera 
+  const camera = new THREE.PerspectiveCamera(50, sizes.width/sizes.height, 0.1, 100);
+  
+  //Renderer
+  const canvas = document.querySelector('.experience')
+  const renderer = new THREE.WebGLRenderer({canvas: canvas});
+  renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+  
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(sizes.width, sizes.height);
+  
+  //Controls 
+  const orbitControls = new OrbitControls(camera, canvas);
+  orbitControls.enableDamping = true;
+  orbitControls.enabled = true;
+  
+  //Lights
+  const ambientLight = new THREE.AmbientLight('#ffffff', 10);
+  scene.add(ambientLight)
+  
+  //Objects
+  
+  const portalMaterial = new THREE.ShaderMaterial({
+    vertexShader: portalVS,
+    fragmentShader: portalFS,
+    transparent: true,
+    side: THREE.DoubleSide,
+    uniforms: { 
+      uTime: { value: 0 },
+      uResolution: { value: sizes.width }   
+    }
+  })
+  
+  
+  const portalGeometry = new THREE.PlaneGeometry(2, 2, 200, 200);
+  
+  const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
+  
+  scene.add(portalMesh);
+  
+  //scene.add(new THREE.Mesh(portalGeometry, new THREE.MeshBasicMaterial({ map: portalTexture})))
+  
+  //Scene Configuration
+  
+  camera.position.set(0, 0, 1.2)
+  
+  //Gui
+  
+  //Animate
+  const clock = new THREE.Clock();
+  
+  const tick = ()=>{
+    const elapsedTime = clock.getElapsedTime();
+  
+      //Controls
+      orbitControls.update();
 
-//Camera 
-const camera = new THREE.PerspectiveCamera(50, sizes.width/sizes.height, 0.1, 100);
+      //Update shaders 
+      portalMaterial.uniforms.uTime.value = elapsedTime;
 
-//Renderer
-const canvas = document.querySelector('.experience')
-const renderer = new THREE.WebGLRenderer({canvas: canvas});
-renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(sizes.width, sizes.height);
-
-//Controls 
-const orbitControls = new OrbitControls(camera, canvas);
-orbitControls.enableDamping = true;
-orbitControls.enabled = true;
-
-//Lights
-const ambientLight = new THREE.AmbientLight('#ffffff', 10);
-scene.add(ambientLight)
-
-//Objects
-
-const portalMaterial = new THREE.ShaderMaterial({
-  transparent: true,
-  side: THREE.DoubleSide,
-  unifroms: {
-
-  },
-  vertexShader: portalVS,
-  fragmentShader: portalFS,
-})
-
-
-const portalGeometry = new THREE.PlaneGeometry(1, 1, 100, 100);
-
-const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
-
-scene.add(portalMesh);
-//Scene Configuration
-
-camera.position.set(0, 0, 5)
-
-//Gui
-
-//Animate
-const clock = new THREE.Clock();
-
-const tick = ()=>{
-
-    //Controls
-    orbitControls.update();
-    //Render
-    renderer.render(scene, camera);
-    window.requestAnimationFrame(tick);
+      //Render
+      renderer.render(scene, camera);
+      window.requestAnimationFrame(tick);
+  }
+  
+  console.timeEnd('Threejs')
+  tick();
 }
-
-console.timeEnd('Threejs')
-tick();
