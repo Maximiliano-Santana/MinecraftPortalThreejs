@@ -11,7 +11,7 @@ import GUI from 'lil-gui';
 
 console.time('Threejs')
 
-//THREE.ColorManagement.enabled = false;
+THREE.ColorManagement.enabled = false;
 
 
 //Sizes 
@@ -51,19 +51,27 @@ const obsidianCubeTexture = textureLoader.load('resources/textures/obsidianBlock
 gltfLoader.load('resources/models/Block/Block.glb', (gltf)=>{
   
   const obsidianCube = gltf.scene.children[0];
-  //console.log(obsidianCube)
   const obsidianMaterial = new THREE.MeshBasicMaterial({
     map:obsidianCubeTexture,
   })
-  //obsidianCube.material = obsidianMaterial;
+  obsidianCube.material = obsidianMaterial;
   //scene.add(obsidianCube);
 })
 
+
+gltfLoader.load('resources/models/portalModel/minecraftPortalModel.glb', (gltf)=>{
+  console.log(gltf)
+  const portalModel = gltf.scene
+  scene.add(portalModel);
+})
+
+
 const portalTexture = textureLoader.load('/resources/textures/netherPortalTexture/nether_portal.png');
 
+//Scene 
+const scene = new THREE.Scene();
+
 function initProject(){
-  //Scene 
-  const scene = new THREE.Scene();
   
   //Camera 
   const camera = new THREE.PerspectiveCamera(50, sizes.width/sizes.height, 0.1, 100);
@@ -103,7 +111,7 @@ function initProject(){
   
   const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
   
-  scene.add(portalMesh);
+  //scene.add(portalMesh);
   
   //scene.add(new THREE.Mesh(portalGeometry, new THREE.MeshBasicMaterial({ map: portalTexture})))
   

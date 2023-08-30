@@ -11,15 +11,19 @@ float rand(float a){
 }
 
 vec4 render(){
+
+    //Se obtienen las uv normalizadas en 0, 0 y el tiempo
     vec2 uv = (vUv.xy-0.5);
     float t = floor(uTime*30.0)/30.0;
-    //uv = floor(uv*60.0)/60.0;
-    
+
+    //uv se modifica a floor para que sea pixeleado
+    uv = floor(uv*60.0)/60.0;
+    //Se agrega un offset 
     uv.y+=1.0;
+
+    //Se define un color base
     vec3 purple = vec3(0.271,0.004,0.710);
-    vec3 col = purple;
-    //col = vec3(0);
-    //float th = atan(uv.y,uv.x);
+    vec3 col = purple; 
     
     //col+=sin(th*3.0)*0.5+0.5;
     //col*=purple;
@@ -54,23 +58,21 @@ vec4 render(){
     col*=step(abs(uv3.x),0.365);
     col*=1.0+rand(col.x)*0.1+rand(col.y)*0.05;
     
-    return vec4(col,1.0);
+    return vec4(col, 1.0);
 }
 void main ( ){
 vec4 col = vec4(0);
-float pixel = (uResolution/450.0)*8.0;
-//vUv = floor(vUv/pixel)*pixel
+
 float scale = 1.0/5.0;
 
 col =render()*scale;
-//vUv.x+=8.0;
 col+=render()*scale;
-//vUv.x-=8.0;
 col+=render()*scale;
-//vUv.y+=8.0;
 col+=render()*scale;
-//vUv.y-=8.0;
 col+=render()*scale;
+
+//Controlo el alpha del shader
+col.w = 0.5;
 
 gl_FragColor = vec4(col);
 }
