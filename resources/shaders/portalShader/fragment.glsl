@@ -22,7 +22,7 @@ vec4 render(){
     uv.y+=1.0;
 
     //Se define un color base
-    vec3 purple = vec3(0.271,0.004,0.710);
+    vec3 purple = vec3(0.3333, 0.1137, 0.6902);
     vec3 col = purple; 
     
     //col+=sin(th*3.0)*0.5+0.5;
