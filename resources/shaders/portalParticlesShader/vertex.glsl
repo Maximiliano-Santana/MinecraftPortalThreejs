@@ -11,18 +11,17 @@ varying vec3 vColors;
 
 void main (){
     vec4 vertexPosition = modelMatrix * vec4(position, 1.0);
+    float t = uTime*0.25;
+    t += distance(vertexPosition.z, 0.0);
 
     //Animation
-    float x = uTime*0.5;
-    // vertexPosition.z -= uTime*0.2;
-    vertexPosition.z -= x - floor((x+vertexPosition.z)+1.0) + 1.0;
-
-
-    // vertexPosition.z = 0.0y;
+    vertexPosition.z = -(t - floor((t+1.0)))*2.0;
 
     //Cone shape
     vertexPosition.x += (vertexPosition.x*pow(vertexPosition.z, 2.0)*0.05);
     vertexPosition.y += pow(vertexPosition.z*0.5, 2.0);
+
+    // vertexPosition.z += vertexPosition.z;
 
     vec4 viewPosition = viewMatrix * vertexPosition;
 
@@ -32,7 +31,11 @@ void main (){
     gl_Position = projectedPosition;
 
     //PointSizes
-    gl_PointSize = uSize/clamp(vertexPosition.z, 0.6, 5.0);
+    float maxSize = 5.0;
+    float minSize = 0.01;
+    gl_PointSize = uSize/pow(distance(vertexPosition.z+0.9, 0.0), 1.5);
+    // gl_PointSize = uSize/distance(vertexPosition.z+0.9, 0.0);
+    // gl_PointSize = uSize/clamp(distance(vertexPosition.z+0.5, 0.0), 0.5, 1000.0);
     
     //perspective
     gl_PointSize *= (1.0/ -viewPosition.z);

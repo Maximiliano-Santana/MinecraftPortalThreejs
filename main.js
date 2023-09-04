@@ -140,17 +140,6 @@ lavaFlowTexture.repeat.x = 0.5
 lavaFlowTexture.repeat.y = 0.03125
 lavaFlowTexture.colorSpace = THREE.SRGBColorSpace;
 
-// const genericParticles = [
-//   textureLoader.load('/resources/textures/genericParticles/generic_0.png'),
-//   textureLoader.load('/resources/textures/genericParticles/generic_1.png'),
-//   textureLoader.load('/resources/textures/genericParticles/generic_2.png'),
-//   textureLoader.load('/resources/textures/genericParticles/generic_3.png'),
-//   textureLoader.load('/resources/textures/genericParticles/generic_4.png'),
-//   textureLoader.load('/resources/textures/genericParticles/generic_5.png'),
-//   textureLoader.load('/resources/textures/genericParticles/generic_6.png'),
-//   textureLoader.load('/resources/textures/genericParticles/generic_7.png'),
-// ];
-
 const genericParticlesAtlas = textureLoader.load('/resources/textures/genericParticles/genericParticles.png');
 genericParticlesAtlas.flipY = false;
 genericParticlesAtlas.minFilter = THREE.NearestFilter;
@@ -189,7 +178,7 @@ const portalMaterial = new THREE.ShaderMaterial({
 const scene = new THREE.Scene();
 
 //Camera 
-const camera = new THREE.PerspectiveCamera(50, sizes.width/sizes.height, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(50, sizes.width/sizes.height, 0.1, 1000);  // camera.position.set(12, 16, 22)
 
 //Renderer
 const canvas = document.querySelector('.experience')
@@ -215,6 +204,7 @@ function initProject(){
   orbitControls.enableDamping = true;
   orbitControls.enabled = true;
   orbitControls.target = new THREE.Vector3(0, 0, 0)
+  camera.position.set(-15, 8, -10);
 
   
   
@@ -224,6 +214,8 @@ function initProject(){
   const portalGeometry = new THREE.PlaneGeometry(3, 3, 200, 200);
   
   const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
+  
+
 
   portalMesh.position.set(0 , 0, 0);
   scene.add(portalMesh)
@@ -234,17 +226,29 @@ function initProject(){
   
   //Scene Configuration
   
-  // camera.position.set(12, 16, 22)
-  camera.position.set(5, 5, 5)
+
   
   //Particles 
-  debugObject.portalParcilesCount = 100
+  debugObject.portalParcilesCount = 25;
   createPortalParticles(debugObject.portalParcilesCount);
   portalParticles.position.copy(portalMesh.position)
+
+  portalParticles.position.copy(portalMesh.position);
   gui.add(debugObject, 'portalParcilesCount', 0, 10000).onFinishChange((count)=>{
     createPortalParticles(count);
   })
-  gui.add(portalParticlesMaterial.uniforms.uTime, 'value', 0, 10).name('Time');
+
+  gui.add(portalParticles.position, 'x', -5, 5).onChange((x)=>{
+    portalParticles.position.x = x;
+  });
+  gui.add(portalParticles.position, 'y', -5, 5).onChange((y)=>{
+    portalParticles.position.y = y;
+  });
+  gui.add(portalParticles.position, 'z', -5, 5).onChange((z)=>{
+    portalParticles.position.z = z;
+  });
+
+
   //Gui
   
   //Animate
@@ -353,7 +357,7 @@ function createPortalParticles (count){
       uPixelRatio : { value: Math.min(window.devicePixelRatio, 2) },
       uParticle: { value: genericParticlesAtlas },
       uTime: { value: 0 },
-      uSize: { value: 100 },
+      uSize: { value: 150 },
     },
   })
 
