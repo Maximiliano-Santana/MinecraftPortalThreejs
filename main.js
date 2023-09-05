@@ -21,7 +21,9 @@ THREE.ColorManagement.enabled = false;
 const debugObject = {}
 let portalParticlesGeometry = null
 let portalParticlesMaterial = null
-let portalParticles = null
+let portalParticlesA = null;
+let portalParticlesB = null;
+let portalParticles = null;
 
 //Sizes 
 const sizes = {
@@ -45,7 +47,8 @@ window.addEventListener('resize', ()=>{
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
     //Update shaders
-    portalMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+    // portalMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+    console.log(portalMaterial.uniforms.uPixelRatio);
 });
 
 //Loaders
@@ -83,7 +86,7 @@ gltfLoader.load('resources/models/portalModel/binary/minecraftPortalModel.glb', 
   })
   
   portalModel = gltf.scene
-  // scene.add(portalModel);
+  scene.add(portalModel);
   
 })
 
@@ -203,7 +206,7 @@ function initProject(){
   const orbitControls = new OrbitControls(camera, canvas);
   orbitControls.enableDamping = true;
   orbitControls.enabled = true;
-  orbitControls.target = new THREE.Vector3(0, 0, 0)
+  orbitControls.target = new THREE.Vector3(0, 7.5, 0)
   camera.position.set(15, 8, 10);
 
   
@@ -217,7 +220,7 @@ function initProject(){
   
 
 
-  portalMesh.position.set(0 , 0, 0);
+  portalMesh.position.set(0, 7.5, 2.5);
   scene.add(portalMesh)
   // portalModel.add(portalMesh);
   
@@ -229,21 +232,23 @@ function initProject(){
 
   
   //Particles 
-  debugObject.portalParcilesCount = 50;
+  debugObject.portalParcilesCount = 25;
   createPortalParticles(debugObject.portalParcilesCount);
   portalParticles.position.copy(portalMesh.position);
   
   gui.add(debugObject, 'portalParcilesCount', 0, 10000).onFinishChange((count)=>{
     createPortalParticles(count);
+    portalParticles.position.copy(portalMesh.position);
+
   })
 
-  gui.add(portalMesh.position, 'x', -5, 5).onChange((x)=>{
+  gui.add(portalMesh.position, 'x', -10, 10).onChange((x)=>{
     portalParticles.position.x = x;
   });
-  gui.add(portalMesh.position, 'y', -5, 5).onChange((y)=>{
+  gui.add(portalMesh.position, 'y', -10, 10).onChange((y)=>{
     portalParticles.position.y = y;    
   });
-  gui.add(portalMesh.position, 'z', -5, 5).onChange((z)=>{
+  gui.add(portalMesh.position, 'z', -10, 10).onChange((z)=>{
     portalParticles.position.z = z;
   });
 
@@ -361,7 +366,15 @@ function createPortalParticles (count){
     },
   })
 
-  portalParticles = new THREE.Points(portalParticlesGeometry, portalParticlesMaterial)
+  portalParticlesA = new THREE.Points(portalParticlesGeometry, portalParticlesMaterial);
+  portalParticlesB = new THREE.Points(portalParticlesGeometry, portalParticlesMaterial);
+  portalParticlesB.rotation.y = Math.PI;
+  portalParticles = new THREE.Group();
+
+  portalParticles.add(portalParticlesA);
+  portalParticles.add(portalParticlesB);
+  
+  scene.add(portalParticles);
 
   scene.add(portalParticles);
 }

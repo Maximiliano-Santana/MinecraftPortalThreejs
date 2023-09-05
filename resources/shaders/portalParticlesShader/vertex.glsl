@@ -16,11 +16,11 @@ void main (){
     t += distance(vertexPosition.z, 0.0);
 
     //Animation
-    vertexPosition.z = -(t - floor((t+1.0)))*2.0;
+    vertexPosition.z = -(t - floor((t+1.0)))*3.0;
 
     //Cone shape
-    vertexPosition.x += (vertexPosition.x*pow(vertexPosition.z, 2.0)*0.25);
-    vertexPosition.y += pow(vertexPosition.z, 2.0);
+    vertexPosition.x += (vertexPosition.x*pow(vertexPosition.z, 2.0)*0.1);
+    vertexPosition.y += pow(vertexPosition.z*0.5, 1.5);
 
     //Size 
     float particleSize = 2.0/clamp(distance(vertexPosition, vec3(0.0)), 1.5, 100.0);
