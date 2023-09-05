@@ -204,7 +204,7 @@ function initProject(){
   orbitControls.enableDamping = true;
   orbitControls.enabled = true;
   orbitControls.target = new THREE.Vector3(0, 0, 0)
-  camera.position.set(-15, 8, -10);
+  camera.position.set(15, 8, 10);
 
   
   
@@ -229,24 +229,24 @@ function initProject(){
 
   
   //Particles 
-  debugObject.portalParcilesCount = 25;
+  debugObject.portalParcilesCount = 50;
   createPortalParticles(debugObject.portalParcilesCount);
-  portalParticles.position.copy(portalMesh.position)
-
   portalParticles.position.copy(portalMesh.position);
+  
   gui.add(debugObject, 'portalParcilesCount', 0, 10000).onFinishChange((count)=>{
     createPortalParticles(count);
   })
 
-  gui.add(portalParticles.position, 'x', -5, 5).onChange((x)=>{
+  gui.add(portalMesh.position, 'x', -5, 5).onChange((x)=>{
     portalParticles.position.x = x;
   });
-  gui.add(portalParticles.position, 'y', -5, 5).onChange((y)=>{
-    portalParticles.position.y = y;
+  gui.add(portalMesh.position, 'y', -5, 5).onChange((y)=>{
+    portalParticles.position.y = y;    
   });
-  gui.add(portalParticles.position, 'z', -5, 5).onChange((z)=>{
+  gui.add(portalMesh.position, 'z', -5, 5).onChange((z)=>{
     portalParticles.position.z = z;
   });
+
 
 
   //Gui
@@ -362,5 +362,6 @@ function createPortalParticles (count){
   })
 
   portalParticles = new THREE.Points(portalParticlesGeometry, portalParticlesMaterial)
+
   scene.add(portalParticles);
 }
