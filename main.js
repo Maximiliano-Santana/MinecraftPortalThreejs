@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
 
 import portalVS from '/resources/shaders/portalShader/vertex.glsl'
@@ -12,8 +13,6 @@ import portalFS from '/resources/shaders/portalShader/fragment.glsl'
 import portalParticlesVS from '/resources/shaders/portalParticlesShader/vertex.glsl'
 import portalParticlesFS from '/resources/shaders/portalParticlesShader/fragment.glsl'
 
-
-import GUI from 'lil-gui';
 import gsap from 'gsap'
 
 THREE.ColorManagement.enabled = false;
@@ -47,15 +46,40 @@ window.addEventListener('resize', ()=>{
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
     //Update shaders
-    // portalMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
-    console.log(portalMaterial.uniforms.uPixelRatio);
+    portalParticlesMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
 });
+
+//Scene 
+const scene = new THREE.Scene();
+
+//Camera 
+const camera = new THREE.PerspectiveCamera(50, sizes.width/sizes.height, 0.1, 1000);  // camera.position.set(12, 16, 22)
+
+//Renderer
+const canvas = document.querySelector('.experience')
+const renderer = new THREE.WebGLRenderer({
+  canvas: canvas,
+  antialias: true,
+});
+debugObject.clearColor = '#060c0f'
+renderer.setClearColor(debugObject.clearColor)
+
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(sizes.width, sizes.height);
+
 
 //Loaders
 
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = ()=>{
   initProject();
+
+  portalModel.traverse((child)=>{
+    if(child.name == 'LavaStill' || child.name == 'LavaFlow'){
+      child.add(lavaSound)
+    }
+  })
+
 }
 
 const textureLoader = new THREE.TextureLoader();
@@ -68,7 +92,8 @@ gltfLoader.setDRACOLoader(dracoLoader);
 //Models
 
 let portalModel = null;
-gltfLoader.load('resources/models/portalModel/binary/minecraftPortalModel.glb', (gltf)=>{
+gltfLoader.load('./models/portalModel/binary/minecraftPortalModel.glb', (gltf)=>{
+  console.log(gltf)
   gltf.scene.traverse((child)=>{
     if(child.name === 'BaseStone'){
       child.material = backedBaseStoneMaterial
@@ -92,14 +117,14 @@ gltfLoader.load('resources/models/portalModel/binary/minecraftPortalModel.glb', 
 
 //Textures
 
-const backedPlantsTexture = textureLoader.load('/resources/textures/backedTextures/backedPlants.png');
+const backedPlantsTexture = textureLoader.load('./textures/backedTextures/backedPlants.png');
 backedPlantsTexture.flipY = false;
 backedPlantsTexture.minFilter = THREE.NearestFilter
 backedPlantsTexture.magFilter = THREE.NearestFilter
 backedPlantsTexture.generateMipmaps = false;
 backedPlantsTexture.colorSpace = THREE.SRGBColorSpace;
 
-const backedGroundArchTexture = textureLoader.load('/resources/textures/backedTextures/backedGoundArch.jpg')
+const backedGroundArchTexture = textureLoader.load('./textures/backedTextures/backedGoundArch.jpg')
 backedGroundArchTexture.flipY = false;
 backedGroundArchTexture.minFilter = THREE.NearestFilter
 backedGroundArchTexture.magFilter = THREE.NearestFilter
@@ -107,21 +132,21 @@ backedGroundArchTexture.generateMipmaps = false;
 backedGroundArchTexture.colorSpace = THREE.SRGBColorSpace;
 
 
-const backedObsidianTexture = textureLoader.load('/resources/textures/backedTextures/backedObsidianPortal.jpg')
+const backedObsidianTexture = textureLoader.load('./textures/backedTextures/BackedObsidian2.jpg')
 backedObsidianTexture.flipY = false;
 backedObsidianTexture.minFilter = THREE.NearestFilter
 backedObsidianTexture.magFilter = THREE.NearestFilter
 backedObsidianTexture.generateMipmaps = false;
 backedObsidianTexture.colorSpace = THREE.SRGBColorSpace;
 
-const backedBaseStoneTexture = textureLoader.load('/resources/textures/backedTextures/backedBaseStone.jpg')
+const backedBaseStoneTexture = textureLoader.load('./textures/backedTextures/backedBaseStone.jpg')
 backedBaseStoneTexture.flipY = false
 backedBaseStoneTexture.minFilter = THREE.NearestFilter
 backedBaseStoneTexture.magFilter = THREE.NearestFilter
 backedBaseStoneTexture.generateMipmaps = false;
 backedBaseStoneTexture.colorSpace = THREE.SRGBColorSpace;
 
-const lavaStillTexture = textureLoader.load('/resources/textures/lavaTexture/lava_still.png');
+const lavaStillTexture = textureLoader.load('./textures/lavaTexture/lava_still.png');
 lavaStillTexture.flipY = false;
 lavaStillTexture.minFilter = THREE.NearestFilter;
 lavaStillTexture.magFilter = THREE.NearestFilter;
@@ -132,7 +157,7 @@ lavaStillTexture.repeat.x = 1
 lavaStillTexture.repeat.y = 0.05
 lavaStillTexture.colorSpace = THREE.SRGBColorSpace;
 
-const lavaFlowTexture = textureLoader.load('/resources/textures/lavaTexture/lava_flow.png');
+const lavaFlowTexture = textureLoader.load('./textures/lavaTexture/lava_flow.png');
 lavaFlowTexture.flipY = false;
 lavaFlowTexture.minFilter = THREE.NearestFilter;
 lavaFlowTexture.magFilter = THREE.NearestFilter;
@@ -143,19 +168,72 @@ lavaFlowTexture.repeat.x = 0.5
 lavaFlowTexture.repeat.y = 0.03125
 lavaFlowTexture.colorSpace = THREE.SRGBColorSpace;
 
-const genericParticlesAtlas = textureLoader.load('/resources/textures/genericParticles/genericParticles.png');
+const genericParticlesAtlas = textureLoader.load('./textures/genericParticles/genericParticles.png');
 genericParticlesAtlas.flipY = false;
 genericParticlesAtlas.minFilter = THREE.NearestFilter;
 genericParticlesAtlas.magFilter = THREE.NearestFilter;
 genericParticlesAtlas.generateMipmaps = false;
 
-const lavaParticle = textureLoader.load('/resources/textures/lavaParticle/lavaParticle.png');
+const lavaParticle = textureLoader.load('./textures/lavaParticle/lavaParticle.png');
+
+//Environment
+
+const rgbeLoader = new RGBELoader(loadingManager);
+
+// rgbeLoader.load('./textures/envMap/minecraftNightEnvironment.hdr', (envMap)=>{
+//   envMap.mapping = THREE.EquirectangularReflectionMapping;
+//   scene.background = envMap;
+//   scene.backgroundBlurriness = 0.055;
+//   // scene.environment = envMap;
+// });
+
+textureLoader.load('./textures/envMap/MinecraftNightEnvironment.jpg', (envMap)=>{
+  envMap.colorSpace = THREE.SRGBColorSpace;
+  envMap.mapping = THREE.EquirectangularReflectionMapping;
+  scene.background = envMap;
+  scene.backgroundBlurriness = 0.055;
+})
+
+//Audio
+const listener = new THREE.AudioListener();
+camera.add(listener)
+
+const audioLoader = new THREE.AudioLoader(loadingManager);
+
+
+const netherPortalSound = new THREE.PositionalAudio(listener);
+
+audioLoader.load('./sounds/portal.ogg', function(buffer){
+  netherPortalSound.setBuffer(buffer)
+  netherPortalSound.setRefDistance(2)
+  netherPortalSound.setLoop(true);
+  netherPortalSound.setVolume(0.25);
+  netherPortalSound.setLoopStart(2000)
+  // netherPortalSound.setLoopEnd(3000)
+  netherPortalSound.play();
+})
+
+const lavaSound = new THREE.PositionalAudio(listener);
+
+audioLoader.load('./sounds/lava.ogg', (buffer)=>{
+  lavaSound.setBuffer(buffer)
+  lavaSound.setRefDistance(5)
+  lavaSound.setLoop(true);
+  lavaSound.setVolume(0.25);
+  lavaSound.play();
+})
+
+// setTimeout(()=>{
+//   lavaSound.setVolume(0)
+//   netherPortalSound.setVolume(0)
+// }, 10000)
 
 
 //Materials 
 
-const backedPlantsMaterial = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, map:backedPlantsTexture, transparent: true});
-backedPlantsMaterial.alphaTest = 0.25;
+const backedPlantsMaterial = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, map:backedPlantsTexture});
+backedPlantsMaterial.alphaTest = 0.6;
+backedPlantsMaterial.alphaToCoverage = true;
 
 const backedObsidianMaterial = new THREE.MeshBasicMaterial({map: backedObsidianTexture});
 
@@ -177,24 +255,6 @@ const portalMaterial = new THREE.ShaderMaterial({
   }
 })
 
-//Scene 
-const scene = new THREE.Scene();
-
-//Camera 
-const camera = new THREE.PerspectiveCamera(50, sizes.width/sizes.height, 0.1, 1000);  // camera.position.set(12, 16, 22)
-
-//Renderer
-const canvas = document.querySelector('.experience')
-const renderer = new THREE.WebGLRenderer({canvas: canvas});
-debugObject.clearColor = '#060c0f'
-renderer.setClearColor(debugObject.clearColor)
-const gui = new GUI
-gui.addColor(debugObject, 'clearColor').onChange(()=>{
-  renderer.setClearColor(debugObject.clearColor);
-});
-
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(sizes.width, sizes.height);
 
 
 
@@ -207,14 +267,18 @@ function initProject(){
   orbitControls.enableDamping = true;
   orbitControls.enabled = true;
   orbitControls.target = new THREE.Vector3(0, 7.5, 0)
-  camera.position.set(15, 8, 10);
+  orbitControls.maxPolarAngle = Math.PI / 1.75;
+  orbitControls.minPolarAngle = Math.PI / 8;
+  orbitControls.maxDistance = 35;
+  orbitControls.enablePan = false;
+  camera.position.set(-15, 12, -20);
 
   
   
   
   //Objects
   
-  const portalGeometry = new THREE.PlaneGeometry(3, 3, 200, 200);
+  const portalGeometry = new THREE.PlaneGeometry(3, 3);
   
   const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
   
@@ -222,6 +286,9 @@ function initProject(){
 
   portalMesh.position.set(0, 7.5, 2.5);
   scene.add(portalMesh)
+
+  portalMesh.add(netherPortalSound);
+
   // portalModel.add(portalMesh);
   
   
@@ -236,25 +303,6 @@ function initProject(){
   createPortalParticles(debugObject.portalParcilesCount);
   portalParticles.position.copy(portalMesh.position);
   
-  gui.add(debugObject, 'portalParcilesCount', 0, 10000).onFinishChange((count)=>{
-    createPortalParticles(count);
-    portalParticles.position.copy(portalMesh.position);
-
-  })
-
-  gui.add(portalMesh.position, 'x', -10, 10).onChange((x)=>{
-    portalParticles.position.x = x;
-  });
-  gui.add(portalMesh.position, 'y', -10, 10).onChange((y)=>{
-    portalParticles.position.y = y;    
-  });
-  gui.add(portalMesh.position, 'z', -10, 10).onChange((z)=>{
-    portalParticles.position.z = z;
-  });
-
-
-
-  //Gui
   
   //Animate
 
@@ -274,7 +322,7 @@ function initProject(){
         }
       }
   }
-  const intervalID = setInterval(animateLava,  60 * 1000 / 550);
+  const intervalID = setInterval(animateLava,  150);
 
 
 
