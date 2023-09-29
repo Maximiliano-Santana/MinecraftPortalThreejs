@@ -79,6 +79,7 @@ loadingManager.onLoad = ()=>{
   window.setTimeout(()=>{
     gsap.to(overlayMaterial.uniforms.uAlpha, {duration: 1, value: 0})
     loadingWindow.classList.add('loaded');
+    scene.remove(overlayMesh);
   }, 250)
 
 
