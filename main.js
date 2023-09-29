@@ -77,10 +77,12 @@ loadingManager.onLoad = ()=>{
   initProject();
 
   window.setTimeout(()=>{
-    gsap.to(overlayMaterial.uniforms.uAlpha, {duration: 1, value: 0})
+    gsap.to(overlayMaterial.uniforms.uAlpha, {duration: 2, value: 0})
     loadingWindow.classList.add('loaded');
-    scene.remove(overlayMesh);
-  }, 250)
+    setTimeout(()=>{
+      scene.remove(overlayMesh);
+    }, 500)
+  }, 1000)
 
 
   portalModel.traverse((child)=>{
