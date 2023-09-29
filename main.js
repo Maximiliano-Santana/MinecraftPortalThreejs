@@ -93,7 +93,6 @@ gltfLoader.setDRACOLoader(dracoLoader);
 
 let portalModel = null;
 gltfLoader.load('./models/portalModel/binary/minecraftPortalModel.glb', (gltf)=>{
-  console.log(gltf)
   gltf.scene.traverse((child)=>{
     if(child.name === 'BaseStone'){
       child.material = backedBaseStoneMaterial
@@ -146,7 +145,7 @@ backedBaseStoneTexture.magFilter = THREE.NearestFilter
 backedBaseStoneTexture.generateMipmaps = false;
 backedBaseStoneTexture.colorSpace = THREE.SRGBColorSpace;
 
-const lavaStillTexture = textureLoader.load('./textures/lavaTexture/lava_still.png');
+const lavaStillTexture = textureLoader.load('./textures/lavaTexture/lavaStill.png');
 lavaStillTexture.flipY = false;
 lavaStillTexture.minFilter = THREE.NearestFilter;
 lavaStillTexture.magFilter = THREE.NearestFilter;
@@ -157,7 +156,7 @@ lavaStillTexture.repeat.x = 1
 lavaStillTexture.repeat.y = 0.05
 lavaStillTexture.colorSpace = THREE.SRGBColorSpace;
 
-const lavaFlowTexture = textureLoader.load('./textures/lavaTexture/lava_flow.png');
+const lavaFlowTexture = textureLoader.load('./textures/lavaTexture/lavaFlow.png');
 lavaFlowTexture.flipY = false;
 lavaFlowTexture.minFilter = THREE.NearestFilter;
 lavaFlowTexture.magFilter = THREE.NearestFilter;
