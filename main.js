@@ -95,7 +95,6 @@ loadingManager.onLoad = ()=>{
 
 const loadingWindow = document.querySelector('.loading');
 const loadingProgress = document.querySelector('.loading-bar__progress');
-console.log(loadingWindow)
 
 loadingManager.onProgress = (asset, loaded, toLoad)=>{
   console.log(`${loaded} of ${toLoad} : ${asset}`);
