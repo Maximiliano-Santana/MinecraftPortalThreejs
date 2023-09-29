@@ -68,21 +68,67 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(sizes.width, sizes.height);
 
 
-//Loaders
+//-------------------------------------------Loaders-------------------------------------------
 
 const loadingManager = new THREE.LoadingManager();
+
+// ----- On load
 loadingManager.onLoad = ()=>{
   initProject();
+
+  window.setTimeout(()=>{
+    gsap.to(overlayMaterial.uniforms.uAlpha, {duration: 1, value: 0})
+    loadingWindow.classList.add('loaded');
+  }, 250)
+
 
   portalModel.traverse((child)=>{
     if(child.name == 'LavaStill' || child.name == 'LavaFlow'){
       child.add(lavaSound)
     }
+    lavaSound.play();
+  
   })
+}
+
+//----- Loading bar
+
+const loadingWindow = document.querySelector('.loading');
+const loadingProgress = document.querySelector('.loading-bar__progress');
+console.log(loadingWindow)
+
+loadingManager.onProgress = (asset, loaded, toLoad)=>{
+  console.log(`${loaded} of ${toLoad} : ${asset}`);
+  const progress = (loaded/toLoad)*100;
+  console.log(`progress: ${progress}`)
+  loadingProgress.style.clipPath = `polygon(${progress}% 0, ${progress}% 100%, 0 100%, 0 0)`
 
 }
 
-const textureLoader = new THREE.TextureLoader();
+const overlayGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
+const overlayMaterial = new THREE.ShaderMaterial({
+  transparent: true,
+  side: THREE.DoubleSide,
+  uniforms:{
+    uAlpha:{value: 1},
+  },
+  vertexShader: `
+    void main(){
+      gl_Position = vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform float uAlpha;
+    void main (){
+      gl_FragColor = vec4(0.0, 0.0, 0.0, uAlpha);
+    }
+  `
+})
+
+const overlayMesh = new THREE.Mesh(overlayGeometry, overlayMaterial);
+scene.add(overlayMesh);
+
+const textureLoader = new THREE.TextureLoader(loadingManager);
 const gltfLoader = new GLTFLoader(loadingManager);
 const dracoLoader = new DRACOLoader(loadingManager);
 
@@ -177,14 +223,6 @@ const lavaParticle = textureLoader.load('./textures/lavaParticle/lavaParticle.pn
 
 //Environment
 
-const rgbeLoader = new RGBELoader(loadingManager);
-
-// rgbeLoader.load('./textures/envMap/minecraftNightEnvironment.hdr', (envMap)=>{
-//   envMap.mapping = THREE.EquirectangularReflectionMapping;
-//   scene.background = envMap;
-//   scene.backgroundBlurriness = 0.055;
-//   // scene.environment = envMap;
-// });
 
 textureLoader.load('./textures/envMap/MinecraftNightEnvironment.jpg', (envMap)=>{
   envMap.colorSpace = THREE.SRGBColorSpace;
@@ -209,7 +247,6 @@ audioLoader.load('./sounds/portal.ogg', function(buffer){
   netherPortalSound.setVolume(0.25);
   netherPortalSound.setLoopStart(2000)
   // netherPortalSound.setLoopEnd(3000)
-  netherPortalSound.play();
 })
 
 const lavaSound = new THREE.PositionalAudio(listener);
@@ -219,7 +256,6 @@ audioLoader.load('./sounds/lava.ogg', (buffer)=>{
   lavaSound.setRefDistance(5)
   lavaSound.setLoop(true);
   lavaSound.setVolume(0.25);
-  lavaSound.play();
 })
 
 // setTimeout(()=>{
@@ -253,55 +289,65 @@ const portalMaterial = new THREE.ShaderMaterial({
     uResolution: { value: sizes.width }   
   }
 })
+  
+//Controls 
+const orbitControls = new OrbitControls(camera, canvas);
+orbitControls.enableDamping = true;
+orbitControls.enabled = true;
+orbitControls.target = new THREE.Vector3(0, 7.5, 0)
+orbitControls.maxPolarAngle = Math.PI / 1.75;
+orbitControls.minPolarAngle = Math.PI / 8;
+orbitControls.maxDistance = 35;
+orbitControls.enablePan = false;
+camera.position.set(-15, 12, -20);
+
+//Objects 
+const portalGeometry = new THREE.PlaneGeometry(3, 3);
+  
+const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
+
+portalMesh.position.set(0, 7.5, 2.5);
+scene.add(portalMesh)
+
+portalMesh.add(netherPortalSound);
+netherPortalSound.play();
 
 
+//Particles 
+debugObject.portalParcilesCount = 25;
+createPortalParticles(debugObject.portalParcilesCount);
+portalParticles.position.copy(portalMesh.position);
 
+
+//Animation
+
+const clock = new THREE.Clock();
+let lastTime = 0;
+
+const tick = ()=>{
+  const elapsedTime = clock.getElapsedTime();
+  const deltaTime = lastTime - elapsedTime;
+  lastTime = elapsedTime;    
+
+  
+  //Controls
+  orbitControls.update();
+  //Update shaders/materials
+  if(portalMaterial){
+    portalMaterial.uniforms.uTime.value = elapsedTime;
+    portalParticlesMaterial.uniforms.uTime.value = elapsedTime;
+  }
+
+  
+  
+  //Render
+  renderer.render(scene, camera);
+  window.requestAnimationFrame(tick);
+}
+tick();
 
 
 function initProject(){
-  
-  
-  //Controls 
-  const orbitControls = new OrbitControls(camera, canvas);
-  orbitControls.enableDamping = true;
-  orbitControls.enabled = true;
-  orbitControls.target = new THREE.Vector3(0, 7.5, 0)
-  orbitControls.maxPolarAngle = Math.PI / 1.75;
-  orbitControls.minPolarAngle = Math.PI / 8;
-  orbitControls.maxDistance = 35;
-  orbitControls.enablePan = false;
-  camera.position.set(-15, 12, -20);
-
-  
-  
-  
-  //Objects
-  
-  const portalGeometry = new THREE.PlaneGeometry(3, 3);
-  
-  const portalMesh = new THREE.Mesh(portalGeometry, portalMaterial);
-  
-
-
-  portalMesh.position.set(0, 7.5, 2.5);
-  scene.add(portalMesh)
-
-  portalMesh.add(netherPortalSound);
-
-  // portalModel.add(portalMesh);
-  
-  
-  //scene.add(new THREE.Mesh(portalGeometry, new THREE.MeshBasicMaterial({ map: portalTexture})))
-  
-  //Scene Configuration
-  
-
-  
-  //Particles 
-  debugObject.portalParcilesCount = 25;
-  createPortalParticles(debugObject.portalParcilesCount);
-  portalParticles.position.copy(portalMesh.position);
-  
   
   //Animate
 
@@ -323,38 +369,6 @@ function initProject(){
   }
   const intervalID = setInterval(animateLava,  150);
 
-
-
-  const clock = new THREE.Clock();
-  let lastTime = 0;
-
-
-  const tick = ()=>{
-    const elapsedTime = clock.getElapsedTime();
-    const deltaTime = lastTime - elapsedTime;
-    lastTime = elapsedTime;
-    
-    //Animations 
-
-    // portalModel.rotation.y += deltaTime*0.25
-    
-
-    //Controls
-    orbitControls.update();
-
-
-
-    //Update shaders/materials
-    portalMaterial.uniforms.uTime.value = elapsedTime;
-    portalParticlesMaterial.uniforms.uTime.value = elapsedTime;
-
-    
-    
-    //Render
-    renderer.render(scene, camera);
-    window.requestAnimationFrame(tick);
-  }
-  tick();
 }
 
 

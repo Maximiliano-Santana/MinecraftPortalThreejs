@@ -1,3 +1,12 @@
+@font-face  {
+  font-family: MinecraftTitle;
+  src: url(./fonts/MinecraftTitle.ttf)
+}
+@font-face  {
+  font-family: MinecraftBody;
+  src: url(./fonts/MinecraftBody.ttf)
+}
+
 body {
   margin: 0;
   display: flex;
@@ -5,7 +14,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #3c3c3c;
+  background-color: black ;
   overflow: hidden; 
 }
 
@@ -14,4 +23,49 @@ body {
   top: 0;
   left: 0;
   outline:none;
+}
+
+.loading{
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+}
+
+.loaded {
+  display: none;
+}
+
+.loading > h1{
+  padding: 0px;
+  margin: 8px;
+  font-family: 'MinecraftTitle';
+}
+
+.loading > h2 {
+  margin: 8px;
+  font-family: 'MinecraftBody';
+}
+
+.loading-bar {
+  position: absolute;
+  bottom: 64px;
+  width: 70%;
+  height: 32px;
+  border: solid 3px white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-bar__progress {
+  width: 100%;
+  height: 28px;
+  background-color: white;
+  clip-path: polygon(0 0, 0 100%, 0 100%, 0 0);
 }
