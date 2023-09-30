@@ -179,7 +179,7 @@ backedGroundArchTexture.generateMipmaps = false;
 backedGroundArchTexture.colorSpace = THREE.SRGBColorSpace;
 
 
-const backedObsidianTexture = textureLoader.load('./textures/backedTextures/BackedObsidian2.jpg')
+const backedObsidianTexture = textureLoader.load('./textures/backedTextures/BackedPortalBlack.jpg')
 backedObsidianTexture.flipY = false;
 backedObsidianTexture.minFilter = THREE.NearestFilter
 backedObsidianTexture.magFilter = THREE.NearestFilter
